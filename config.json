@@ -14,5 +14,5 @@
     "ipfsInfuraSecret": null,
     "awsS3Bucket": null,
     "noRetainAuthority": false,
-    "noMutable": false
+    "noMutable": false 
 }
