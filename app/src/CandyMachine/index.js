@@ -4,6 +4,7 @@ import { Program, Provider, web3 } from '@project-serum/anchor';
 import { MintLayout, TOKEN_PROGRAM_ID, Token } from '@solana/spl-token';
 import { sendTransactions } from './connection';
 import './CandyMachine.css';
+import CountdownTimer from '../CountdownTimer';
 import {
   candyMachineProgram,
   TOKEN_METADATA_PROGRAM_ID,
@@ -27,6 +28,8 @@ const CandyMachine = ({ walletAddress }) => {
   
 
   const [candyMachine, setCandyMachine] = useState(null);
+  const [mints, setMints] = useState([]);
+  const [isLoadingMints, setIsLoadingMints] = useState(null);
 
 
   const getProvider = () => {
@@ -393,15 +396,51 @@ const CandyMachine = ({ walletAddress }) => {
     return [];
   };
 
+  
+  const renderDropTimer = () => {
+    // Get the current date and dropDate in a JavaScript Date object
+    const currentDate = new Date();
+    const dropDate = new Date(candyMachine.state.goLiveData * 1000);
+  
+    // If currentDate is before dropDate, render our Countdown component
+    if (currentDate < dropDate) {
+      console.log('Before drop date!');
+      // Don't forget to pass over your dropDate!
+      return <CountdownTimer dropDate={dropDate} />;
+    }
+  
+    // Else let's just return the current drop date
+    return <p>{`Drop Date: ${candyMachine.state.goLiveDateTimeString}`}</p>;
+  };
+
+  const renderMintedItems = () => (
+    <div className='gif-container'>
+      <p className='sub-text'>Mints:</p>
+    </div>
+  );
+
   return (
-    // Only show this if candyMachine and candyMachine.state is available
     candyMachine && candyMachine.state && (
       <div className="machine-container">
-        <p>{`Drop Date: ${candyMachine.state.goLiveDateTimeString}`}</p>
+        {renderDropTimer()}
         <p>{`Items Minted: ${candyMachine.state.itemsRedeemed} / ${candyMachine.state.itemsAvailable}`}</p>
-        <button className="cta-button mint-button" onClick={mintToken}>
-            Mint NFT
-        </button>
+          {/* Check to see if these properties are equal! */}
+          {candyMachine.state.itemsRedeemed === candyMachine.state.itemsAvailable ? (
+            <p className="sub-text">Sold Out 🙊</p>
+          ) : (
+            <button
+              className="cta-button mint-button"
+              onClick={mintToken}
+            >
+              Mint NFT
+            </button>
+
+          )}
+          <img src="https://www.arweave.net/mjUBZxDMJBCqZcIVzyVwktJwcz_7zJn5xpZldTWdu78?ext=png" width="200" height="200"></img>
+          <img src="https://www.arweave.net/eTQgUX3OLA37AWk8XBXn4WDlWxAi4TgnX-uWQksaLso?ext=png" width="200" height="200"></img>
+          <img src="https://www.arweave.net/UDIVzh63vOTesewgoAEd3VhQVyxDQ0Clb0FC2SyDMYw?ext=png" width="200" height="200"></img>
+          {mints.length>0 && renderMintedItems()}
+          {isLoadingMints&& <p>...</p>}
       </div>
     )
   );
